@@ -1,11 +1,18 @@
 import requests
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
+import os
+from dotenv import load_dotenv
+
+# .envファイルを読み込む
+load_dotenv()
 
 # Flaskアプリケーションのインスタンスを作成
 app = Flask(__name__)
 
 # NewsAPIの基本設定
-NEWS_API_KEY = '870c4d696af44d0ea4cef6d4a14c07bb'  # あなたのNewsAPIキー
+NEWS_API_KEY = os.getenv('NEWS_API_KEY')
+if not NEWS_API_KEY:
+    raise ValueError("環境変数 'NEWS_API_KEY' が設定されていません。")
 NEWS_API_ENDPOINT = 'https://newsapi.org/v2/top-headlines'
 
 # --- ルーティング定義 ---
@@ -18,18 +25,19 @@ def index():
 # '/api/news' にアクセスされたら、ニュース記事を返す
 @app.route('/api/news')
 def get_news():
-    # NewsAPIにリクエストを送る
+    # クエリパラメータからカテゴリを取得（なければ'technology'）
+    category = request.args.get('category', 'technology')
     params = {
         'apiKey': NEWS_API_KEY,
-        'country': 'jp',         # 日本のニュース
-        'category': 'technology',# テクノロジーカテゴリ
-        'pageSize': 20           # 最大20件
+        'country': 'jp',
+        'category': category,
+        'pageSize': 10  # ★取得する記事数を10に設定
     }
     try:
+        # timeoutを(コネクション, リード)で指定
         response = requests.get(NEWS_API_ENDPOINT, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
-        # NewsAPIの仕様に従い、statusやarticlesの存在を確認
         if data.get('status') == 'ok' and 'articles' in data:
             return jsonify(data['articles'])
         else:

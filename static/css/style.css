@@ -1,44 +1,50 @@
-/* ベースカラーとフォント */
-body {
-    background: #181a1b;
-    color: #f1f1f1;
-    font-family: 'Segoe UI', 'Meiryo', sans-serif;
-    margin: 0;
-    padding: 0;
+/* カラーバリアブル定義 */
+:root {
+    --bg-color-dark: #181a1b;
+    --text-color-dark: #f1f1f1;
+    --card-bg-dark: #232526;
+    --accent-color: #ffd700;
+
+    --bg-color-light: #f7f7f7;
+    --text-color-light: #222;
+    --card-bg-light: #fff;
 }
 
-/* ライトテーマ用スタイル */
+/* ベースカラーとフォント */
+body {
+    background: var(--bg-color-dark);
+    color: var(--text-color-dark);
+    font-family: 'Segoe UI', 'Meiryo', sans-serif;
+    margin: 0;
+    padding: 16px;
+}
+
 body.light-theme {
-    background: #f7f7f7;
-    color: #222;
+    background: var(--bg-color-light);
+    color: var(--text-color-light);
 }
-body.light-theme .article-card {
-    background: #fff;
-    color: #222;
-    border: 1px solid #ccc;
-}
-body.light-theme .show-more-btn {
-    background: #fff;
-    color: #222;
-    border: 1px solid #ccc;
+
+/* タイトル */
+h1 {
+    text-align: center;
+    margin-bottom: 32px;
+    color: var(--text-color-dark);
 }
 body.light-theme h1 {
-    color: #222;
+    color: var(--text-color-light);
 }
-body.light-theme h3 {
-    color: #e6b800;
-}
-body.light-theme p {
-    color: #444;
+
+/* 記事ラッパー */
+.articles-wrapper {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* 記事カードのグリッド */
 .articles-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
-    margin-bottom: 16px;
-    padding: 0 8px;
 }
 
 /* 記事カード */
@@ -46,15 +52,37 @@ body.light-theme p {
     border: 1px solid #333;
     padding: 12px;
     border-radius: 8px;
-    background: #232526;
-    cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s;
+    background: var(--card-bg-dark);
     word-break: break-word;
-    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 .article-card:hover {
     background: #2c2f31;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+body.light-theme .article-card {
+    background: var(--card-bg-light);
+    color: var(--text-color-light);
+    border: 1px solid #ccc;
+}
+
+/* 記事タイトル */
+.article-card h3 {
+    margin-top: 0;
+    color: var(--accent-color);
+    flex-grow: 1;
+}
+body.light-theme .article-card h3 {
+    color: #e6b800;
+}
+
+/* 記事本文 */
+.article-card p {
+    color: #e0e0e0;
+}
+body.light-theme .article-card p {
+    color: #444;
 }
 
 /* カード内のアクションボタン */
@@ -65,7 +93,7 @@ body.light-theme p {
 }
 .card-actions button {
     background: #444;
-    color: #ffd700;
+    color: var(--accent-color);
     border: none;
     border-radius: 4px;
     padding: 4px 10px;
@@ -86,9 +114,13 @@ body.light-theme .card-actions button:hover {
 
 /* 要約表示 */
 .summary {
+    display: none;
     margin-top: 8px;
     color: #aaf;
     font-size: 0.95rem;
+}
+.summary.is-visible {
+    display: block;
 }
 body.light-theme .summary {
     color: #0077cc;
@@ -101,8 +133,8 @@ body.light-theme .summary {
     padding: 8px 24px;
     font-size: 1rem;
     cursor: pointer;
-    background: #232526;
-    color: #f1f1f1;
+    background: var(--card-bg-dark);
+    color: var(--text-color-dark);
     border: 1px solid #333;
     border-radius: 6px;
     transition: background 0.2s;
@@ -110,23 +142,14 @@ body.light-theme .summary {
 .show-more-btn:hover {
     background: #2c2f31;
 }
-
-/* タイトルやテキスト */
-h1 {
-    text-align: center;
-    margin-bottom: 32px;
-    color: #fff;
-}
-h3 {
-    color: #ffd700;
-    margin-top: 0;
-}
-p {
-    color: #e0e0e0;
+body.light-theme .show-more-btn {
+    background: var(--card-bg-light);
+    color: var(--text-color-light);
+    border: 1px solid #ccc;
 }
 
 /* 検索ボックス */
-.search-box {
+.search-box, #searchBox {
     margin: 16px auto 8px auto;
     display: block;
     width: 90%;
@@ -134,17 +157,16 @@ p {
     padding: 8px;
     border-radius: 6px;
     border: 1px solid #333;
-    background: #232526;
-    color: #f1f1f1;
+    background: var(--card-bg-dark);
+    color: var(--text-color-dark);
     font-size: 1rem;
 }
-body.light-theme .search-box {
-    background: #fff;
-    color: #222;
+body.light-theme .search-box,
+body.light-theme #searchBox {
+    background: var(--card-bg-light);
+    color: var(--text-color-light);
     border: 1px solid #ccc;
 }
-
-
 
 /* 新着バッジ */
 #new-badge {
@@ -156,24 +178,61 @@ body.light-theme .search-box {
     font-size: 0.9rem;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 900px) {
+/* ナビゲーションボタンの基本スタイル */
+.nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10;
+    display: none; /* スマホでは非表示 */
+}
+.nav-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+.nav-btn.prev-btn {
+    left: -20px;
+}
+.nav-btn.next-btn {
+    right: -20px;
+}
+.nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* --- PC版のスタイル (画面幅 768px 以上) --- */
+@media (min-width: 768px) {
     .articles-container {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .nav-btn {
+        display: block; /* PCでは表示 */
     }
 }
-@media (max-width: 600px) {
+
+/* --- スマホ版のスタイル (画面幅 767px 以下) --- */
+@media (max-width: 767px) {
     .articles-container {
         grid-template-columns: 1fr;
     }
-    .article-card {
-        font-size: 1rem;
+    .nav-btn {
+        display: none; /* スマホでは非表示 */
     }
-    h1 {
-        font-size: 1.3rem;
+    .articles-wrapper {
+        padding: 0;
     }
-    .show-more-btn {
-        width: 100%;
-        font-size: 1.1rem;
+    .nav-btn.prev-btn {
+        left: 5px;
+    }
+    .nav-btn.next-btn {
+        right: 5px;
     }
 }

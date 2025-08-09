@@ -1,188 +1,3 @@
-// --- 記事データ取得（APIから取得する場合はfetchを利用） ---
-let articles = [];
-const articlesContainer = document.getElementById('articles');
-const showMoreBtn = document.getElementById('showMoreBtn');
-const initialCount = 9;
-
-// お気に入り保存用
-let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-
-// --- 記事の描画 ---
-function renderArticles(list = articles) {
-    articlesContainer.innerHTML = '';
-    list.forEach((article, idx) => {
-        const card = document.createElement('div');
-        card.className = 'article-card' + (idx >= initialCount ? ' hidden' : '');
-        card.innerHTML = `
-            <h3>${article.title}</h3>
-            <p>${article.description || ''}</p>
-            <div class="card-actions">
-                <button class="fav-btn">${isFavorite(article) ? '★' : '☆'}</button>
-                <button class="share-btn">シェア</button>
-                <button class="summary-btn">要約</button>
-            </div>
-        `;
-        // 記事クリックでページ移動
-        card.addEventListener('click', (e) => {
-            if (!e.target.classList.contains('fav-btn') &&
-                !e.target.classList.contains('share-btn') &&
-                !e.target.classList.contains('summary-btn')) {
-                if (article.url && article.url !== "#") {
-                    window.open(article.url, '_blank');
-                }
-            }
-        });
-        // お気に入りボタン
-        card.querySelector('.fav-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleFavorite(article);
-            renderArticles(list);
-        });
-        // シェアボタン
-        card.querySelector('.share-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            shareArticle(article);
-        });
-        // 要約ボタン
-        card.querySelector('.summary-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            showSummary(card, article);
-        });
-        articlesContainer.appendChild(card);
-    });
-}
-
-// --- お気に入り管理 ---
-function isFavorite(article) {
-    return favorites.some(fav => fav.url === article.url);
-}
-function toggleFavorite(article) {
-    if (isFavorite(article)) {
-        favorites = favorites.filter(fav => fav.url !== article.url);
-    } else {
-        favorites.push(article);
-    }
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-}
-
-// --- シェア機能 ---
-function shareArticle(article) {
-    const shareUrl = article.url || location.href;
-    if (navigator.share) {
-        navigator.share({
-            title: article.title,
-            text: article.description,
-            url: shareUrl
-        });
-    } else {
-        const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(shareUrl)}`;
-        window.open(twitterUrl, '_blank');
-    }
-}
-
-// --- 要約機能（ダミー） ---
-function showSummary(card, article) {
-    let summary = article.description ? article.description.slice(0, 50) + '...' : '要約できません';
-    let summaryDiv = card.querySelector('.summary');
-    if (!summaryDiv) {
-        summaryDiv = document.createElement('div');
-        summaryDiv.className = 'summary';
-        summaryDiv.style.marginTop = '8px';
-        summaryDiv.style.color = '#aaf';
-        card.appendChild(summaryDiv);
-    }
-    summaryDiv.textContent = summary;
-}
-
-// --- もっと見る ---
-showMoreBtn.addEventListener('click', () => {
-    document.querySelectorAll('.article-card.hidden').forEach(card => {
-        card.classList.remove('hidden');
-    });
-    showMoreBtn.style.display = 'none';
-});
-
-// --- 検索・フィルター ---
-const searchBox = document.createElement('input');
-searchBox.type = 'text';
-searchBox.placeholder = 'キーワード検索';
-searchBox.className = 'search-box';
-document.body.insertBefore(searchBox, articlesContainer);
-
-searchBox.addEventListener('input', () => {
-    const keyword = searchBox.value.trim().toLowerCase();
-    const filtered = articles.filter(a =>
-        (a.title && a.title.toLowerCase().includes(keyword)) ||
-        (a.description && a.description.toLowerCase().includes(keyword))
-    );
-    renderArticles(filtered);
-    if (filtered.length > initialCount) {
-        showMoreBtn.style.display = '';
-    } else {
-        showMoreBtn.style.display = 'none';
-    }
-});
-
-// --- お気に入り表示ボタン ---
-const favBtn = document.createElement('button');
-favBtn.textContent = 'お気に入り一覧';
-favBtn.className = 'show-more-btn';
-favBtn.style.marginTop = '0';
-favBtn.style.background = '#444';
-favBtn.style.color = '#ffd700';
-document.body.insertBefore(favBtn, searchBox);
-
-let showingFavorites = false;
-favBtn.addEventListener('click', () => {
-    if (!showingFavorites) {
-        renderArticles(favorites);
-        favBtn.textContent = '全記事に戻る';
-        showMoreBtn.style.display = 'none';
-        showingFavorites = true;
-    } else {
-        renderArticles();
-        favBtn.textContent = 'お気に入り一覧';
-        if (articles.length > initialCount) showMoreBtn.style.display = '';
-        showingFavorites = false;
-    }
-});
-
-// --- テーマ切り替え ---
-const themeBtn = document.createElement('button');
-themeBtn.textContent = 'テーマ切替';
-themeBtn.className = 'show-more-btn';
-themeBtn.style.marginTop = '0';
-themeBtn.style.background = '#232526';
-themeBtn.style.color = '#fff';
-document.body.insertBefore(themeBtn, favBtn);
-
-themeBtn.addEventListener('click', () => {
-    document.body.classList.toggle('light-theme');
-    if (document.body.classList.contains('light-theme')) {
-        themeBtn.textContent = 'ダークテーマ';
-    } else {
-        themeBtn.textContent = 'ライトテーマ';
-    }
-});
-
-// --- 新着通知（ダミー） ---
-function showNewBadge() {
-    let badge = document.getElementById('new-badge');
-    if (!badge) {
-        badge = document.createElement('span');
-        badge.id = 'new-badge';
-        badge.textContent = '新着!';
-        badge.style.background = '#ff4081';
-        badge.style.color = '#fff';
-        badge.style.padding = '2px 8px';
-        badge.style.borderRadius = '12px';
-        badge.style.marginLeft = '8px';
-        badge.style.fontSize = '0.9rem';
-        document.querySelector('h1').appendChild(badge);
-    }
-    setTimeout(() => badge.remove(), 4000);
-}
-
 // --- 記事データ取得（APIから取得） ---
 function fetchArticles() {
     fetch('/api/news')
@@ -190,11 +5,159 @@ function fetchArticles() {
         .then(data => {
             articles = data;
             renderArticles();
-            if (articles.length > initialCount) showMoreBtn.style.display = '';
-            else showMoreBtn.style.display = 'none';
             showNewBadge();
         });
 }
 
 // --- 初期化 ---
 fetchArticles();
+
+document.addEventListener('DOMContentLoaded', () => {
+    // --- DOM要素の取得 ---
+    const articlesContainer = document.getElementById('articles');
+    const loader = document.getElementById('loader');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    // --- 状態管理のための変数 ---
+    let allArticles = []; // 全記事を保持
+    let isFetching = false; // API通信中のフラグ
+    let currentMode = ''; // 'pc' または 'sp'
+
+    // PC用
+    const articlesPerPage = 3;
+    let currentPage = 1;
+
+    // SP用
+    let loadedArticleCount = 0;
+    const articlesPerLoad = 5;
+
+    // --- 記事カードを生成する関数 ---
+    function createArticleCard(article) {
+        const card = document.createElement('div');
+        card.className = 'article-card';
+        card.innerHTML = `
+            <h3>${article.title}</h3>
+            <p>${article.description || '概要はありません。'}</p>
+        `;
+        card.addEventListener('click', () => {
+            if (article.url) {
+                // 閲覧履歴をlocalStorageに保存
+                let history = JSON.parse(localStorage.getItem('history') || '[]');
+                history.push({ title: article.title, description: article.description, category: article.category });
+                localStorage.setItem('history', JSON.stringify(history));
+                window.open(article.url, '_blank');
+            }
+        });
+        return card;
+    }
+
+    // --- PC版：ページを描画する関数 ---
+    function renderPCPage() {
+        articlesContainer.innerHTML = '';
+        const startIndex = (currentPage - 1) * articlesPerPage;
+        const endIndex = startIndex + articlesPerPage;
+        const pageArticles = allArticles.slice(startIndex, endIndex);
+
+        pageArticles.forEach(article => {
+            articlesContainer.appendChild(createArticleCard(article));
+        });
+
+        // ボタンの有効/無効を更新
+        prevBtn.disabled = currentPage === 1;
+        const totalPages = Math.ceil(allArticles.length / articlesPerPage);
+        nextBtn.disabled = currentPage === totalPages;
+    }
+
+    // --- SP版：記事を追加で読み込む関数 ---
+    function loadMoreArticlesSP() {
+        const articlesToLoad = allArticles.slice(loadedArticleCount, loadedArticleCount + articlesPerLoad);
+        articlesToLoad.forEach(article => {
+            articlesContainer.appendChild(createArticleCard(article));
+        });
+        loadedArticleCount += articlesToLoad.length;
+
+        // すべて読み込んだらローダーを隠す
+        if (loadedArticleCount >= allArticles.length) {
+            loader.style.display = 'none';
+        }
+    }
+
+    // --- SP版：スクロールイベントの処理 ---
+    const handleScroll = () => {
+        // すべて読み込み済み、または読み込み中なら何もしない
+        if (loadedArticleCount >= allArticles.length || isFetching) {
+            return;
+        }
+
+        // 画面の底に近づいたら次の記事を読み込む
+        if (window.innerHeight + window.scrollY >= document.documentElement.offsetHeight - 200) {
+            isFetching = true; // 多重読み込み防止
+            loader.style.display = 'block';
+            setTimeout(() => { // ローダーを見せるための少しの遅延
+                loadMoreArticlesSP();
+                isFetching = false;
+            }, 500);
+        }
+    };
+    
+    // --- モードを判定し、初期設定を行う関数 ---
+    function setupMode() {
+        const newMode = window.innerWidth >= 768 ? 'pc' : 'sp';
+
+        if (newMode === currentMode) return; // モードが変わらないなら何もしない
+        currentMode = newMode;
+        
+        // コンテナと状態をリセット
+        articlesContainer.innerHTML = '';
+        window.removeEventListener('scroll', handleScroll); // SP用イベントをクリア
+        
+        if (currentMode === 'pc') {
+            currentPage = 1;
+            renderPCPage();
+        } else {
+            loadedArticleCount = 0;
+            loadMoreArticlesSP();
+            window.addEventListener('scroll', handleScroll);
+        }
+    }
+
+    // --- ウィンドウリサイズ時の処理 ---
+    window.addEventListener('resize', setupMode);
+
+    // --- 初期設定 ---
+    setupMode();
+});
+
+// --- おすすめカテゴリ取得 ---
+function getRecommendedCategory() {
+    let history = JSON.parse(localStorage.getItem('history') || '[]');
+    if (history.length === 0) return null;
+    // カテゴリの出現回数を集計
+    const counts = {};
+    history.forEach(item => {
+        if (item.category) {
+            counts[item.category] = (counts[item.category] || 0) + 1;
+        }
+    });
+    // 最も多いカテゴリを返す
+    return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+}
+
+// script.js
+async function initialize() {
+    isFetching = true;
+    loader.style.display = 'block';
+    try {
+        const recCategory = getRecommendedCategory() || 'technology';
+        const response = await fetch(`/api/news?category=${encodeURIComponent(recCategory)}`);
+        if (!response.ok) throw new Error('ニュースの取得に失敗しました。');
+        allArticles = await response.json();
+        setupMode();
+    } catch (error) {
+        articlesContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
+    } finally {
+        isFetching = false;
+        loader.style.display = 'none';
+    }
+}
