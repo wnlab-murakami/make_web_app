@@ -1,179 +1,147 @@
-/* カラーバリアブル定義 */
+/* --- 基本設定と変数 --- */
 :root {
-    --bg-color-dark: #181a1b;
-    --text-color-dark: #f1f1f1;
-    --card-bg-dark: #232526;
-    --accent-color: #ffd700;
-
-    --bg-color-light: #f7f7f7;
-    --text-color-light: #222;
-    --card-bg-light: #fff;
+    --bg-color: #121212;
+    --surface-color: #1e1e1e;
+    --primary-color: #bb86fc;
+    --secondary-color: #03dac6;
+    --text-color: #e0e0e0;
+    --text-muted-color: #888;
+    --border-color: #2c2c2c;
 }
 
-/* ベースカラーとフォント */
 body {
-    background: var(--bg-color-dark);
-    color: var(--text-color-dark);
-    font-family: 'Segoe UI', 'Meiryo', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Noto Sans JP', sans-serif;
     margin: 0;
-    padding: 16px;
+    line-height: 1.6;
 }
 
-body.light-theme {
-    background: var(--bg-color-light);
-    color: var(--text-color-light);
-}
-
-/* タイトル */
-h1 {
-    text-align: center;
-    margin-bottom: 32px;
-    color: var(--text-color-dark);
-}
-body.light-theme h1 {
-    color: var(--text-color-light);
-}
-
-/* 記事ラッパー */
-.articles-wrapper {
-    position: relative;
+.container {
     max-width: 1200px;
     margin: 0 auto;
-    /* ★追加：オーバーフローを隠してスライドインを見せる */
-    overflow: hidden;
+    padding: 24px;
 }
 
-/* 記事カードのグリッド */
+/* --- ヘッダー --- */
+.site-header {
+    background-color: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 60px;
+}
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+}
+nav a {
+    color: var(--text-muted-color);
+    text-decoration: none;
+    margin-left: 20px;
+    transition: color 0.2s;
+}
+nav a:hover, nav a.active {
+    color: var(--text-color);
+}
+
+/* --- 記事コンテナ --- */
 .articles-container {
     display: grid;
-    gap: 16px;
-    /* ★修正：アニメーション効果を追加 */
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
 }
 
-/* ★追加：記事を非表示にし、下にスライドさせるためのクラス */
-.articles-container.is-hidden {
-    opacity: 0;
-    transform: translateY(20px);
-}
-
-
-/* 記事カード */
+/* --- 記事カード --- */
 .article-card {
-    border: 1px solid #333;
-    border-radius: 8px;
-    background: var(--card-bg-dark);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* ★追加：画像のはみ出し防止 */
-    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; /* ★追加 */
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
 }
 .article-card:hover {
-    transform: translateY(-5px); /* ★追加 */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-body.light-theme .article-card {
-    background: var(--card-bg-light);
-    color: var(--text-color-light);
-    border: 1px solid #ccc;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
-/* ★追加：記事画像のスタイル */
-.article-image {
+.article-image-wrapper {
     width: 100%;
-    height: 180px; /* 高さを固定 */
-    object-fit: cover; /* アスペクト比を維持してトリミング */
-    border-bottom: 1px solid #444;
+    padding-top: 56.25%; /* 16:9 アスペクト比 */
+    position: relative;
+    background-color: #333;
 }
-body.light-theme .article-image {
-    border-bottom: 1px solid #ddd;
-}
-
-/* ★追加：記事のコンテンツ部分のラッパー */
-.article-content {
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1; /* ★追加：カードの高さを揃える */
-}
-
-/* 記事タイトル */
-.article-card h3 {
-    margin-top: 0;
-    margin-bottom: 8px; /* ★追加 */
-    color: var(--accent-color);
-    flex-grow: 1;
-}
-body.light-theme .article-card h3 {
-    color: #e6b800;
-}
-
-/* 記事本文 */
-.article-card p {
-    color: #e0e0e0;
-    font-size: 0.95rem; /* ★追加 */
-    margin-bottom: 0; /* ★追加 */
-}
-body.light-theme .article-card p {
-    color: #444;
-}
-
-/* ナビゲーションボタンの基本スタイル */
-.nav-btn {
+.article-image {
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.article-card h3 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 20px;
+    font-size: 1.2rem;
+    color: #fff;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0));
+}
+
+/* --- カード内ボタン --- */
+.card-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+}
+.action-btn {
     background-color: rgba(0, 0, 0, 0.5);
-    color: white;
     border: none;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 24px;
+    width: 36px;
+    height: 36px;
+    color: #fff;
     cursor: pointer;
-    z-index: 10;
-    display: none; /* スマホでは非表示 */
-    transition: background-color 0.2s, opacity 0.2s; /* ★追加 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, transform 0.2s;
 }
-.nav-btn:hover {
+.action-btn:hover {
     background-color: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
 }
-.nav-btn.prev-btn {
-    left: -20px;
+.action-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
 }
-.nav-btn.next-btn {
-    right: -20px;
-}
-.nav-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-}
-
-/* --- PC版のスタイル (画面幅 768px 以上) --- */
-@media (min-width: 768px) {
-    .articles-container {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    .nav-btn {
-        display: block; /* PCでは表示 */
-    }
+.action-btn.is-saved {
+    color: var(--primary-color);
 }
 
-/* --- スマホ版のスタイル (画面幅 767px 以下) --- */
-@media (max-width: 767px) {
-    .articles-container {
-        grid-template-columns: 1fr;
-    }
-    .nav-btn {
-        display: none; /* スマホでは非表示 */
-    }
-    .articles-wrapper {
-        padding: 0;
-    }
-    .nav-btn.prev-btn {
-        left: 5px;
-    }
-    .nav-btn.next-btn {
-        right: 5px;
-    }
+/* --- ローダー --- */
+.loader {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2rem;
+    color: var(--text-muted-color);
 }

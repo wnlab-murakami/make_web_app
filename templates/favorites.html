@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tech News Feed</title>
+    <title>お気に入り - News App</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body id="page-home">
+<body id="page-favorites">
     <header class="site-header">
         <div class="header-content">
             <a href="/" class="logo">Tech News</a>
             <nav>
-                <a href="/" class="active">ホーム</a>
-                <a href="/favorites">お気に入り</a>
+                <a href="/">ホーム</a>
+                <a href="/favorites" class="active">お気に入り</a>
                 <a href="/read-later">後で見る</a>
             </nav>
         </div>
     </header>
 
     <main class="container">
+        <h1>お気に入り一覧</h1>
         <div id="articles" class="articles-container">
             </div>
-        <div id="loader" class="loader">読み込み中...</div>
     </main>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
